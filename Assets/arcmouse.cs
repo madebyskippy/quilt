@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class arcmouse : MonoBehaviour {
 
-	[SerializeField] arcs manager;
+	[SerializeField] quilt_manager manager;
 
 	// Use this for initialization
 	void Start () {

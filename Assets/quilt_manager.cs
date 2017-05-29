@@ -71,13 +71,15 @@ public class quilt_manager : MonoBehaviour {
 //					spaces.Add (temp);
 					quads.Add(new int[]{(i-1)*r+j,(i-1)*r+j+1,(i)*r+j+1,(i)*r+j});
 					GameObject t = Instantiate (l, grid [i * r + j], Quaternion.identity);
-					t.GetComponent<LineRenderer> ().SetPositions (new Vector3[]{grid[quads[quads.Count-1][0]],
-						grid[quads[quads.Count-1][1]],
-						grid[quads[quads.Count-1][2]],
-						grid[quads[quads.Count-1][3]],
-						grid[quads[quads.Count-1][0]]
-					});
+					GameObject p = Instantiate (poly, grid [i * r + j], Quaternion.identity);
+					Vector3[] points = new Vector3[quads [quads.Count - 1].Length+1];
+					for (int k = 0; k < points.Length-1; k++) {
+						points [k] = grid[quads [quads.Count - 1] [k]];
+					}
+					points [points.Length - 1] = points [0];
+					t.GetComponent<LineRenderer> ().SetPositions (points);
 					lines.Add (t);
+					spaces.Add (p);
 				}
 			}
 		}
@@ -106,6 +108,9 @@ public class quilt_manager : MonoBehaviour {
 
 		Vector3 temp = Camera.main.ScreenToWorldPoint (Input.mousePosition);
 		temp.z = 0;
+		if (!start) {
+			mouse.transform.position = temp;
+		}
 
 
 		if (!gameover && !win && !start) {
@@ -195,31 +200,29 @@ public class quilt_manager : MonoBehaviour {
 	}
 
 	void adjustpoly(){
-//		for (int i = 1; i < r; i++) {
-//			for (int j = 0; j < c-1; j++) {
-//				GameObject o = spaces [(i-1)*r+j];
-//				Vector2[] v2;
-//				Vector3[] v3;
-//				v2 = o.GetComponent<PolygonCollider2D> ().points;
-//
-//				v2 [0] = o.transform.InverseTransformPoint(grid [i*r+j]);//-Vector2.one;
-//				v2 [1] = o.transform.InverseTransformPoint(grid [i*r+j+1]	);//-Vector2.one;
-//				v2 [2] = o.transform.InverseTransformPoint(grid [(i-1)*r+j+1]);//-Vector2.one;
-//				v2 [3] = o.transform.InverseTransformPoint(grid [(i-1)*r+j]	);//-Vector2.one;
-//
-//				o.GetComponent<PolygonCollider2D> ().points = v2;
-//				v3 = o.GetComponent<MeshFilter> ().mesh.vertices;
-//				v3 [0] = o.transform.InverseTransformPoint((Vector3)grid [(i-1)*r+j+1]+new Vector3(0,0,1f));//-Vector3.one;
-//				v3 [1] = o.transform.InverseTransformPoint((Vector3)grid [i*r+j]+new Vector3(0,0,1f));//-Vector3.one;
-//				v3 [2] = o.transform.InverseTransformPoint((Vector3)grid [i*r+j+1]+new Vector3(0,0,1f));//-Vector3.one;
-//				v3 [3] = o.transform.InverseTransformPoint((Vector3)grid [(i-1)*r+	j]+new Vector3(0,0,1f));//-Vector3.one;
-//				o.GetComponent<MeshFilter> ().mesh.vertices = v3;
-//				o.GetComponent<MeshFilter> ().mesh.triangles = new int[] {0,1,2,1,0,3};
-//			}
-//		}
+
+		for (int i = 0; i < quads.Count; i++) {
+			//make a poly for each
+			GameObject o = spaces[i];
+			Vector2[] v2;
+			Vector3[] v3;
+
+			v2 = o.GetComponent<PolygonCollider2D> ().points;
+			v3 = o.GetComponent<MeshFilter> ().mesh.vertices;
+			for (int j = 0; j < quads [i].Length; j++) {
+				v2 [j] = o.transform.InverseTransformPoint (grid [quads [i] [j]]);
+				v3 [j] = o.transform.InverseTransformPoint (grid [quads [i] [j]]);
+			}
+
+			o.GetComponent<PolygonCollider2D> ().points = v2;
+			o.GetComponent<MeshFilter> ().mesh.vertices = v3;
+			o.GetComponent<MeshFilter> ().mesh.triangles = new int[] {2,1,0,0,3,2};
+
+		}
 	}
 
 	public void hit(bool corner, Collider2D col = null){
+		Debug.Log ("hey");
 		if (!gameover && !win){
 			if (corner) {
 				Debug.Log ("hit");
@@ -247,12 +250,10 @@ public class quilt_manager : MonoBehaviour {
 	}
 
 	void whitelines(){
-//		for (int i = 0; i < r; i++) {
-//			lr_r [i].startColor = Color.white;
-//			lr_r [i].endColor = Color.white;
-//			lr_c [i].startColor = Color.white;
-//			lr_c [i].endColor = Color.white;
-//		}
+		for (int i = 0; i < lines.Count; i++) {
+			lines [i].GetComponent<LineRenderer>().startColor = Color.white;
+			lines [i].GetComponent<LineRenderer>().endColor = Color.white;
+		}
 	}
 
 	void screenshot(){
