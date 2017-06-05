@@ -66,9 +66,6 @@ public class quilt_manager : MonoBehaviour {
 				changes [i*r+j] = Vector2.zero;
 				intersections.Add(Instantiate (circ, grid [i*r+j], Quaternion.identity));
 				if (i > 0 && j < c - 1) {
-//					GameObject temp = Instantiate (poly, grid [i * r + j], Quaternion.identity);
-//					temp.GetComponent<arcpoly> ().setP (grid [i * r + j]);
-//					spaces.Add (temp);
 					quads.Add(new int[]{(i-1)*r+j,(i-1)*r+j+1,(i)*r+j+1,(i)*r+j});
 					GameObject t = Instantiate (l, grid [i * r + j], Quaternion.identity);
 					GameObject p = Instantiate (poly, grid [i * r + j], Quaternion.identity);
@@ -83,7 +80,6 @@ public class quilt_manager : MonoBehaviour {
 				}
 			}
 		}
-//		adjustpoly ();
 	}
 
 	// Update is called once per frame
@@ -159,24 +155,21 @@ public class quilt_manager : MonoBehaviour {
 					y = Random.Range (-1f, 1f) * increment;
 				}
 				changes [i*r+j] = new Vector2 (x, y);
-				edit (i, j, grid [i*r+j] + changes[i*r+j]);
+				edit (i*r+j,grid [i*r+j] + changes[i*r+j]);
 
 			}
 		}
 	}
+
 	void warp(){
-		for (int j = 0; j < c; j++) {
-			for (int i = 0; i < r; i++) {
-				//				changes [i, j] = Vector2.one * Random.Range (-1f, 1f) * increment;
-				changes[i*r+j] = new Vector2(Random.Range(-1f,1f),Random.Range(-1f,1f)) * increment;
-				edit (i, j, grid [i*r+j] + changes[i*r+j]);
-
-			}
+		for (int i = 0; i < changes.Length; i++) {
+			changes[i] = new Vector2(Random.Range(-1f,1f),Random.Range(-1f,1f)) * increment;
+			edit (i,grid[i]+changes[i]);
 		}
 	}
 
-	void edit(int x, int y, Vector2 p){
-		grid [x*r+y] = p;
+	void edit(int i, Vector2 p){
+		grid[i] = p;
 	}
 
 	void showlines(){
@@ -192,37 +185,44 @@ public class quilt_manager : MonoBehaviour {
 	}
 
 	void placecirc(){
-		for (int j = 0; j < c; j++) {
-			for (int i = 0; i < r; i++) {
-				intersections[i*r+j].transform.position=grid[i*r+j];
-			}
+		for (int i = 0; i < intersections.Count; i++) {
+			intersections [i].transform.position = grid [i];
 		}
 	}
 
 	void adjustpoly(){
-
 		for (int i = 0; i < quads.Count; i++) {
 			//make a poly for each
 			GameObject o = spaces[i];
 			Vector2[] v2;
 			Vector3[] v3;
+			int numtris = (quads[i].Length-2)*3;
+			int current_tri = 0;
+			int[] tris = new int[numtris] ;//{0,2,1,0,3,2};//{2,1,0,0,3,2};
+			tris [0] = 0;
+			tris [1] = 2;
+			tris [2] = 1;
 
 			v2 = o.GetComponent<PolygonCollider2D> ().points;
 			v3 = o.GetComponent<MeshFilter> ().mesh.vertices;
 			for (int j = 0; j < quads [i].Length; j++) {
+				current_tri = j-2;
 				v2 [j] = o.transform.InverseTransformPoint (grid [quads [i] [j]]);
 				v3 [j] = o.transform.InverseTransformPoint (grid [quads [i] [j]]);
+				if (current_tri > 0) {
+					tris [3 * current_tri] = 0;
+					tris [3 * current_tri+1] = j;
+					tris [3 * current_tri+2] = j-1;
+				}
 			}
 
 			o.GetComponent<PolygonCollider2D> ().points = v2;
 			o.GetComponent<MeshFilter> ().mesh.vertices = v3;
-			o.GetComponent<MeshFilter> ().mesh.triangles = new int[] {2,1,0,0,3,2};
-
+			o.GetComponent<MeshFilter> ().mesh.triangles = tris;
 		}
 	}
 
 	public void hit(bool corner, Collider2D col = null){
-		Debug.Log ("hey");
 		if (!gameover && !win){
 			if (corner) {
 				Debug.Log ("hit");
