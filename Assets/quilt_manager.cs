@@ -65,21 +65,24 @@ public class quilt_manager : MonoBehaviour {
 				stable	[i*r+j] = new Vector2 (startp.x + i*0.5f, startp.y - j*0.5f);
 				changes [i*r+j] = Vector2.zero;
 				intersections.Add(Instantiate (circ, grid [i*r+j], Quaternion.identity));
-				if (i > 0 && j < c - 1) {
-					quads.Add(new int[]{(i-1)*r+j,(i-1)*r+j+1,(i)*r+j+1,(i)*r+j});
-					GameObject t = Instantiate (l, grid [i * r + j], Quaternion.identity);
-					GameObject p = Instantiate (poly, grid [i * r + j], Quaternion.identity);
-					Vector3[] points = new Vector3[quads [quads.Count - 1].Length+1];
-					for (int k = 0; k < points.Length-1; k++) {
-						points [k] = grid[quads [quads.Count - 1] [k]];
-					}
-					points [points.Length - 1] = points [0];
-					t.GetComponent<LineRenderer> ().SetPositions (points);
-					lines.Add (t);
-					spaces.Add (p);
-				}
+				intersections [intersections.Count - 1].SetActive (false);
+//				if (i > 0 && j < c - 1) {
+//					quads.Add(new int[]{(i-1)*r+j,(i-1)*r+j+1,(i)*r+j+1,(i)*r+j});
+//					GameObject t = Instantiate (l, grid [i * r + j], Quaternion.identity);
+//					GameObject p = Instantiate (poly, grid [i * r + j], Quaternion.identity);
+//					Vector3[] points = new Vector3[quads [quads.Count - 1].Length+1];
+//					for (int k = 0; k < points.Length-1; k++) {
+//						points [k] = grid[quads [quads.Count - 1] [k]];
+//					}
+//					points [points.Length - 1] = points [0];
+//					t.GetComponent<LineRenderer> ().SetPositions (points);
+//					lines.Add (t);
+//					spaces.Add (p);
+//				}
 			}
 		}
+
+		drawquads ();
 	}
 
 	// Update is called once per frame
@@ -135,6 +138,32 @@ public class quilt_manager : MonoBehaviour {
 		adjustpoly ();
 	}
 
+	void drawquads(){ 
+		quads.Clear ();
+		TextAsset txt = (TextAsset)Resources.Load("pattern");
+		string[] dict = txt.text.Split("\n"[0]);
+		for (int i = 0; i < dict.Length; i++) {
+			string[] p = dict [i].Split ("," [0]);
+			int[] q = new int[p.Length / 2];
+			for (int j = 0; j < q.Length; j ++) {
+				q [j] = int.Parse(p [j * 2]) + int.Parse(p [j * 2 + 1])*r;
+				intersections [q [j]].SetActive (true);
+			}
+			quads.Add (q);
+
+			GameObject t = Instantiate (l, grid [q[0]], Quaternion.identity);
+			GameObject po = Instantiate (poly, grid [q[0]], Quaternion.identity);
+			Vector3[] points = new Vector3[quads [quads.Count - 1].Length+1];
+			for (int k = 0; k < points.Length-1; k++) {
+				points [k] = grid[quads [quads.Count - 1] [k]];
+			}
+			points [points.Length - 1] = points [0];
+			t.GetComponent<LineRenderer> ().SetPositions (points);
+			lines.Add (t);
+			spaces.Add (po);
+		}
+	}
+
 	void jiggle(){
 		float threshold = 0.05f;
 		for (int j = 0; j < c; j++) {
@@ -174,13 +203,13 @@ public class quilt_manager : MonoBehaviour {
 
 	void showlines(){
 		for (int i = 0; i < lines.Count; i++) {
-			lines[i].GetComponent<LineRenderer> ().SetPositions (new Vector3[]{
-				grid[quads[i][0]],
-				grid[quads[i][1]],
-				grid[quads[i][2]],
-				grid[quads[i][3]],
-				grid[quads[i][0]]
-			});
+			Vector3[] points = new Vector3[quads [i].Length+1];
+			for (int j = 0; j < points.Length-1; j++) {
+				points [j] = grid [quads [i] [j]];
+			}
+			points [points.Length - 1] = points [0];
+			lines [i].GetComponent<LineRenderer> ().positionCount = points.Length;
+			lines[i].GetComponent<LineRenderer> ().SetPositions (points);
 		}
 	}
 
@@ -205,6 +234,8 @@ public class quilt_manager : MonoBehaviour {
 
 			v2 = o.GetComponent<PolygonCollider2D> ().points;
 			v3 = o.GetComponent<MeshFilter> ().mesh.vertices;
+			v2 = new Vector2[quads [i].Length];
+			v3 = new Vector3[quads [i].Length];
 			for (int j = 0; j < quads [i].Length; j++) {
 				current_tri = j-2;
 				v2 [j] = o.transform.InverseTransformPoint (grid [quads [i] [j]]);
@@ -215,6 +246,8 @@ public class quilt_manager : MonoBehaviour {
 					tris [3 * current_tri+2] = j-1;
 				}
 			}
+			if (i == quads.Count - 1)
+				Debug.Log (v3);
 
 			o.GetComponent<PolygonCollider2D> ().points = v2;
 			o.GetComponent<MeshFilter> ().mesh.vertices = v3;
@@ -239,7 +272,7 @@ public class quilt_manager : MonoBehaviour {
 					count++;
 					col.GetComponent<arcpoly> ().hit ();
 					col.GetComponent<MeshRenderer> ().material = m;
-					if (count >= ((r - 1) * (c - 1)) && !win) {
+					if (count >= quads.Count && !win) {
 						win = true;
 						whitelines ();
 						screenshot ();
