@@ -10,6 +10,7 @@ public class editor : MonoBehaviour {
 	 */
 
 	[SerializeField] quilt_manager manager;
+	[SerializeField] GameObject l;
 
 	// 0,0 is the top left
 	Vector2 current;
@@ -19,11 +20,19 @@ public class editor : MonoBehaviour {
 	int c = 20;
 
 	GameObject[] circs;
+	Vector2[] grid;
+
+	int[] q = new int[0];
+	List<Vector2> t = new List<Vector2>();
+
+	string time;
 
 	// Use this for initialization
 	void Start () {
 		current = new Vector2 (0f, 0f);
 		circs = manager.getcircs ();
+		grid = manager.getgrid ();
+		time = System.DateTime.Now.ToString("yyyyMMddHHmmss");
 	}
 	
 	// Update is called once per frame
@@ -53,9 +62,24 @@ public class editor : MonoBehaviour {
 
 		if (Input.GetKeyDown (KeyCode.Space)) {
 		}if (Input.GetKeyDown (KeyCode.Z)) {
-			System.IO.File.AppendAllText ("Assets/Resources/pattern.txt", current.x+","+current.y+",");
+			System.IO.File.AppendAllText ("Assets/Resources/pattern"+time+".txt", current.x+","+current.y+",");
+			t.Add (new Vector2(current.x,current.y));
 		}if (Input.GetKeyDown (KeyCode.X)) {
-			System.IO.File.AppendAllText ("Assets/Resources/pattern.txt", "\n");
+			System.IO.File.AppendAllText ("Assets/Resources/pattern"+time+".txt", "\n");
+
+			q = new int[t.Count];
+
+			GameObject line = Instantiate (l, Vector3.zero, Quaternion.identity);
+			Vector3[] points = new Vector3[q.Length+1];
+			for (int k = 0; k < points.Length-1; k++) {
+				q [k] = (int)t [k].x + (int)t [k].y*20;
+				points [k] = grid[q [k]];
+			}
+			points [points.Length - 1] = points [0];
+			line.GetComponent<LineRenderer> ().SetPositions (points);
+			line.GetComponent<LineRenderer> ().startColor = Color.red;
+			line.GetComponent<LineRenderer> ().endColor = Color.red;
+			t.Clear ();
 //			manager.drawquads ();
 		}
 

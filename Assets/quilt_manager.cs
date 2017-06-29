@@ -6,6 +6,8 @@ using UnityEngine.UI;
 
 public class quilt_manager : MonoBehaviour {
 
+	string pattern="pattern20170628210506";
+
 	[SerializeField] Vector2 startp;
 
 	[SerializeField] GameObject l;
@@ -66,19 +68,6 @@ public class quilt_manager : MonoBehaviour {
 				changes [i*r+j] = Vector2.zero;
 				intersections.Add(Instantiate (circ, grid [i*r+j], Quaternion.identity));
 				intersections [intersections.Count - 1].SetActive (false);
-//				if (i > 0 && j < c - 1) {
-//					quads.Add(new int[]{(i-1)*r+j,(i-1)*r+j+1,(i)*r+j+1,(i)*r+j});
-//					GameObject t = Instantiate (l, grid [i * r + j], Quaternion.identity);
-//					GameObject p = Instantiate (poly, grid [i * r + j], Quaternion.identity);
-//					Vector3[] points = new Vector3[quads [quads.Count - 1].Length+1];
-//					for (int k = 0; k < points.Length-1; k++) {
-//						points [k] = grid[quads [quads.Count - 1] [k]];
-//					}
-//					points [points.Length - 1] = points [0];
-//					t.GetComponent<LineRenderer> ().SetPositions (points);
-//					lines.Add (t);
-//					spaces.Add (p);
-//				}
 			}
 		}
 
@@ -142,9 +131,9 @@ public class quilt_manager : MonoBehaviour {
 		quads.Clear ();
 		lines.Clear ();
 		spaces.Clear ();
-		TextAsset txt = (TextAsset)Resources.Load("pattern");
+		TextAsset txt = (TextAsset)Resources.Load(pattern);
 		string[] dict = txt.text.Split("\n"[0]);
-		for (int i = 0; i < dict.Length; i++) {
+		for (int i = 0; i < dict.Length-1; i++) {
 			string[] p = dict [i].Split ("," [0]);
 			int[] q = new int[p.Length / 2];
 			for (int j = 0; j < q.Length; j ++) {
@@ -299,5 +288,9 @@ public class quilt_manager : MonoBehaviour {
 
 	public GameObject[] getcircs(){
 		return intersections.ToArray();
+	}
+
+	public Vector2[] getgrid(){
+		return grid;
 	}
 }
