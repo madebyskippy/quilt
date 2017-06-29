@@ -138,8 +138,10 @@ public class quilt_manager : MonoBehaviour {
 		adjustpoly ();
 	}
 
-	void drawquads(){ 
+	public void drawquads(){ 
 		quads.Clear ();
+		lines.Clear ();
+		spaces.Clear ();
 		TextAsset txt = (TextAsset)Resources.Load("pattern");
 		string[] dict = txt.text.Split("\n"[0]);
 		for (int i = 0; i < dict.Length; i++) {
@@ -293,5 +295,9 @@ public class quilt_manager : MonoBehaviour {
 		//		string temp = System.DateTime.Now.ToString("yyyyMMddHHmmss");
 		//		Debug.Log (temp);
 		//		Application.CaptureScreenshot("../Screenshot"+temp+".png");
+	}
+
+	public GameObject[] getcircs(){
+		return intersections.ToArray();
 	}
 }

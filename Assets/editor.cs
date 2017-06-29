@@ -23,7 +23,7 @@ public class editor : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		current = new Vector2 (0f, 0f);
-		circs = new GameObject[0];
+		circs = manager.getcircs ();
 	}
 	
 	// Update is called once per frame
@@ -37,9 +37,9 @@ public class editor : MonoBehaviour {
 			}
 		}
 
-		if (Input.GetKeyDown (KeyCode.F)) {
-			circs = GameObject.FindGameObjectsWithTag ("grid");
-		}
+//		if (Input.GetKeyDown (KeyCode.F)) {
+//			circs = GameObject.FindGameObjectsWithTag ("grid");
+//		}
 
 		if (Input.GetKeyDown (KeyCode.DownArrow)) {
 			current.x = Mathf.Clamp (current.x + 1, current.x + 1, r-1);
@@ -56,6 +56,7 @@ public class editor : MonoBehaviour {
 			System.IO.File.AppendAllText ("Assets/Resources/pattern.txt", current.x+","+current.y+",");
 		}if (Input.GetKeyDown (KeyCode.X)) {
 			System.IO.File.AppendAllText ("Assets/Resources/pattern.txt", "\n");
+//			manager.drawquads ();
 		}
 
 		//z to enter a point
