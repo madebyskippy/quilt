@@ -15,6 +15,8 @@ PVector mouse;
 boolean mousedown;
 boolean playing;
 
+int currentlevelhover = -1;
+
 int file = 0;
 int numfiles = 3;
 
@@ -30,6 +32,9 @@ void setup(){
   playing = false;
   time = 0;
   pointtouched=-1;
+  currentlevelhover = -1;
+  touchcount=0;
+  pointtouch=false;
   
   offset = 112;
   
@@ -49,8 +54,6 @@ void setup(){
   for (int i=0; i<touched.length; i++){
     touched[i] = false;
   }
-  touchcount=0;
-  pointtouch=false;
 }
 
 void draw() {
@@ -92,9 +95,10 @@ void draw() {
     ellipse(points[pointtouched].x,points[pointtouched].y,
             pointthresh*2,pointthresh*2);
   }
+  drawlevelselect();
   noStroke();
   fill(0);
-  text(str(time),width/2,height-size*2.5);
+  text(str(time),width/2,height-size*3);
 }
 
 void drawpoints(){
@@ -126,7 +130,32 @@ void drawquads(){
   }
 }
 
+void drawlevelselect(){
+  noFill();
+  float h = 30;
+  float r = 40;
+  float total = width*0.8f;
+  float part = total / numfiles;
+  float x = 0.1f*width;
+  currentlevelhover = -1;
+  for (int i=0; i<numfiles; i++){
+    noFill();
+    if (mouseY<height){
+      float dist = sqrt(pow(mouseX-(x+part/2),2)+pow(mouseY-(height-r/4),2));
+      if (dist < r/2){
+        currentlevelhover=i;
+        fill(200);
+      }
+    }
+    arc(x+part/2,height-r/4,r,r,0,4*PI);
+    fill(0);
+    text(str(i+1),x+part/2,height-12);
+    x += part;
+  }
+}
+
 //returns true if PVector point m is inside of int[] poly p
+//http://jeffreythompson.org/collision-detection/poly-point.php
 boolean collision(int[] p, PVector m){
   boolean c=false;
   for (int i=0; i<p.length; i++){
@@ -156,7 +185,18 @@ void mousePressed(){
   //mouse just got pressed
   if (mouseButton == LEFT){
     if (!mousedown){
-      playing = true;
+      if (currentlevelhover < 0){
+        if (!playing){
+          if (pointtouch){
+            setup();
+          }else{
+            playing = true;
+          }
+        }
+      }else{
+        file = currentlevelhover;
+        setup();
+      }
     }
     mousedown = true;
   }
