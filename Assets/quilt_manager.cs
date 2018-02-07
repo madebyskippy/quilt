@@ -6,6 +6,12 @@ using UnityEngine.UI;
 
 public class quilt_manager : MonoBehaviour {
 
+	/*
+	 * tri stuff
+	 * http://wiki.unity3d.com/index.php?title=Triangulator
+	 * https://www.codeproject.com/Articles/8238/Polygon-Triangulation-in-C
+	 */
+
 	string pattern="pattern20170628210506";
 
 	[SerializeField] Vector2 startp;
