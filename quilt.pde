@@ -20,7 +20,8 @@ int currentlevelhover = -1;
 int file = 0;
 int numfiles = 3;
 
-int time;
+float starttime;
+float time;
 
 void setup(){
   PFont font;
@@ -81,6 +82,8 @@ void draw() {
       playing = false;
     }
     
+    time = millis() - starttime;
+    
   }else{
     background(235);
     noStroke();
@@ -98,7 +101,7 @@ void draw() {
   drawlevelselect();
   noStroke();
   fill(0);
-  text(str(time),width/2,height-size*3);
+  text(str(round(time/1000)),width/2,height-size*3);
 }
 
 void drawpoints(){
@@ -140,6 +143,7 @@ void drawlevelselect(){
   currentlevelhover = -1;
   for (int i=0; i<numfiles; i++){
     noFill();
+    stroke(0);
     if (mouseY<height){
       float dist = sqrt(pow(mouseX-(x+part/2),2)+pow(mouseY-(height-r/4),2));
       if (dist < r/2){
@@ -149,6 +153,7 @@ void drawlevelselect(){
     }
     arc(x+part/2,height-r/4,r,r,0,4*PI);
     fill(0);
+    noStroke();
     text(str(i+1),x+part/2,height-12);
     x += part;
   }
@@ -191,6 +196,7 @@ void mousePressed(){
             setup();
           }else{
             playing = true;
+            starttime = millis();
           }
         }
       }else{
