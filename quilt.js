@@ -1,33 +1,36 @@
-int r=20; int c=20;
-int size = 25;
-int offset;
-PVector[] points = new PVector[r*c];
-PVector[] stable = new PVector[r*c];
-int[][] poly;
+var r=20; var c=20;
+var gridsize = 25;
+var offset;
+var points;//PVector[] points;
+var stable;//PVector[] stable;
+var poly;//int[][] poly;
 
-boolean[] touched;
-int touchcount;
-boolean pointtouch;
-int pointtouched;
-float pointthresh = 7.5f;
+var touched;//boolean[] touched;
+var touchcount;
+var pointtouch;
+var pointtouched;
+var pointthresh;
 
-PVector mouse;
-boolean mousedown;
-boolean playing;
+var mouse;
+var mousedown;
+var playing;
 
-int currentlevelhover = -1;
+var currentlevelhover = -1;
 
-int file = 0;
-int numfiles = 3;
+var file = 0;
+var numfiles = 3;
 
-float starttime;
-float time;
+var starttime;
+var time;
 
-void setup(){
-  PFont font;
-  font = loadFont("Monospaced-48.vlw");
+function preload(){
+  //readtxt();
+}
+
+function setup(){
+  var font;
+  font = loadFont("assets/SpaceMono-Regular.ttf");
   textFont(font, 16);
-  textAlign(CENTER,CENTER);
   
   mousedown=false;
   playing = false;
@@ -36,28 +39,37 @@ void setup(){
   currentlevelhover = -1;
   touchcount=0;
   pointtouch=false;
+  pointthresh = 7.5;
   
   offset = 112;
   
   background(255);
-  size(675,675);
+  //size(675,675);
+  createCanvas(675,675);
   
-  for (int i=0; i<r; i++){
-    for (int j=0; j<c; j++){
-      int index = i*r+j;
-      points[index] = new PVector(i*size+offset,j*size+offset);
-      stable[index] = new PVector(i*size+offset,j*size+offset);
+  
+  points = new Array(r*c);//tuple[r*c];
+  stable = new Array(r*c);//tuple[r*c];
+  
+  for (var i=0; i<r; i++){
+    for (var j=0; j<c; j++){
+      var index = i*r+j;
+      points[index] = new tuple;
+      points[index].tuple(i*gridsize+offset,j*gridsize+offset);
+      stable[index] = new tuple;
+      stable[index].tuple(i*gridsize+offset,j*gridsize+offset);
     }
   }
-  readtxt();
+  textAlign(CENTER,CENTER);
+  
   poly = parsetxt();
-  touched = new boolean[poly.length];
-  for (int i=0; i<touched.length; i++){
+  touched = new Array(poly.length);//boolean[poly.length];
+  for (var i=0; i<touched.length; i++){
     touched[i] = false;
   }
 }
 
-void draw() {
+function draw() {
   noFill();
   
   if (playing){
@@ -65,8 +77,10 @@ void draw() {
     warp();
     
     //check what you touched
-    for (int i=0; i<poly.length; i++){
-      if (collision(poly[i],new PVector(mouseX,mouseY))){
+    for (var i=0; i<poly.length; i++){
+      var t = new tuple;
+      t.tuple(mouseX,mouseY);
+      if (collision(poly[i],t)){
         if (!touched[i]){
           touchcount += 1;
         }
@@ -88,7 +102,7 @@ void draw() {
     background(235);
     noStroke();
     fill(0);
-    text("touch all spaces\navoid all intersections\nclick to start",width/2,size*2.5);
+    text("touch all spaces\navoid all intersections\nclick to start",width/2,gridsize*2.5);
     jiggle();
   }
   drawquads();
@@ -101,51 +115,51 @@ void draw() {
   drawlevelselect();
   noStroke();
   fill(0);
-  text(str(round(time/1000)),width/2,height-size*3);
+  text(str(round(time/1000)),width/2,height-gridsize*3);
 }
 
-void drawpoints(){
-  float radius = pointthresh;
+function drawpoints(){
+  var radius = pointthresh;
   noStroke();
   fill(255,0,0,100);
-  for (int i=0; i<r; i++){
-    for (int j=0; j<c; j++){
-      int index = i*r+j;
+  for (var i=0; i<r; i++){
+    for (var j=0; j<c; j++){
+      var index = i*r+j;
       ellipse(points[index].x,points[index].y,radius,radius);
     }
   }
 }
 
-void drawquads(){
+function drawquads(){
   stroke(0);
   fill(225);
-  for (int i=0; i<poly.length; i++){
+  for (var i=0; i<poly.length; i++){
     if (touched[i]){
       fill(150);
     }else{
       fill(250);
     }
     beginShape();
-    for (int j=0; j<poly[i].length;j++){
+    for (var j=0; j<poly[i].length;j++){
       vertex(points[poly[i][j]].x,points[poly[i][j]].y);
     }
     endShape(CLOSE);
   }
 }
 
-void drawlevelselect(){
+function drawlevelselect(){
   noFill();
-  float h = 30;
-  float r = 40;
-  float total = width*0.8f;
-  float part = total / numfiles;
-  float x = 0.1f*width;
+  var h = 30;
+  var r = 40;
+  var total = width*0.8;
+  var part = total / numfiles;
+  var x = 0.1*width;
   currentlevelhover = -1;
-  for (int i=0; i<numfiles; i++){
+  for (var i=0; i<numfiles; i++){
     noFill();
     stroke(0);
     if (mouseY<height){
-      float dist = sqrt(pow(mouseX-(x+part/2),2)+pow(mouseY-(height-r/4),2));
+      var dist = sqrt(pow(mouseX-(x+part/2),2)+pow(mouseY-(height-r/4),2));
       if (dist < r/2){
         currentlevelhover=i;
         fill(200);
@@ -154,19 +168,19 @@ void drawlevelselect(){
     arc(x+part/2,height-r/4,r,r,0,4*PI);
     fill(0);
     noStroke();
-    text(str(i+1),x+part/2,height-12);
+    text(str(i+1),x+part/2,height-15);
     x += part;
   }
 }
 
 //returns true if PVector point m is inside of int[] poly p
 //http://jeffreythompson.org/collision-detection/poly-point.php
-boolean collision(int[] p, PVector m){
-  boolean c=false;
-  for (int i=0; i<p.length; i++){
+function collision(p, m){
+  var c=false;
+  for (var i=0; i<p.length; i++){
     //for poly checking
-    PVector vc = points[p[i]];
-    PVector vn = points[p[0]];
+    var vc = points[p[i]];
+    var vn = points[p[0]];
     if (i+1 < p.length){
       vn = points[p[i+1]];
     }
@@ -176,7 +190,7 @@ boolean collision(int[] p, PVector m){
     }
     
     //for point checking
-    float distance = sqrt(pow(m.x-vc.x,2)+pow(m.y-vc.y,2));
+    var distance = sqrt(pow(m.x-vc.x,2)+pow(m.y-vc.y,2));
     if (distance < pointthresh){
       pointtouch = true;
       pointtouched = p[i];
@@ -186,9 +200,10 @@ boolean collision(int[] p, PVector m){
   return c;
 }
 
-void mousePressed(){
+function mousePressed(){
   //mouse just got pressed
   if (mouseButton == LEFT){
+    print("clicked");
     if (!mousedown){
       if (currentlevelhover < 0){
         if (!playing){
@@ -207,21 +222,31 @@ void mousePressed(){
     mousedown = true;
   }
 }
-void mouseReleased(){
+function mouseReleased(){
   //mouse just got released
+    print("release");
   if (mouseButton == LEFT){
     mousedown = false;
   }
 }
 
-void keyPressed(){
+function keyPressed(){
   if (key == 'r'){
     setup();
   }
-  for (int i=0; i<numfiles; i++){
+  for (var i=0; i<numfiles; i++){
     if (key == str(i).charAt(0)){
       file = i;
       setup();
     }
+  }
+}
+
+function tuple(){
+  this.x=0;
+  this.y=0;
+  this.tuple = function(j, k){
+    this.x=j;
+    this.y=k;
   }
 }
