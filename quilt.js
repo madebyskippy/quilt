@@ -1,6 +1,10 @@
+/*
+-doesn't load other levels
+*/
+
 var r=20; var c=20;
 var gridsize = 25;
-var offset;
+var offsetx,offsety;
 var points;//PVector[] points;
 var stable;//PVector[] stable;
 var poly;//int[][] poly;
@@ -10,6 +14,7 @@ var touchcount;
 var pointtouch;
 var pointtouched;
 var pointthresh;
+var done;
 
 var mouse;
 var mousedown;
@@ -32,21 +37,11 @@ function setup(){
   font = loadFont("assets/SpaceMono-Regular.ttf");
   textFont(font, 16);
   
-  mousedown=false;
-  playing = false;
-  time = 0;
-  pointtouched=-1;
-  currentlevelhover = -1;
-  touchcount=0;
-  pointtouch=false;
-  pointthresh = 7.5;
-  
-  offset = 112;
+  offsetx = windowWidth/2-c/2*gridsize+gridsize;
+  offsety = windowHeight/2-r/2*gridsize+gridsize;
   
   background(255);
-  //size(675,675);
-  createCanvas(675,675);
-  
+  createCanvas(windowWidth, windowHeight);
   
   points = new Array(r*c);//tuple[r*c];
   stable = new Array(r*c);//tuple[r*c];
@@ -55,18 +50,32 @@ function setup(){
     for (var j=0; j<c; j++){
       var index = i*r+j;
       points[index] = new tuple;
-      points[index].tuple(i*gridsize+offset,j*gridsize+offset);
+      points[index].tuple(i*gridsize+offsetx,j*gridsize+offsety);
       stable[index] = new tuple;
-      stable[index].tuple(i*gridsize+offset,j*gridsize+offset);
+      stable[index].tuple(i*gridsize+offsetx,j*gridsize+offsety);
     }
   }
   textAlign(CENTER,CENTER);
   
   poly = parsetxt();
   touched = new Array(poly.length);//boolean[poly.length];
+  
+  reset();
+}
+
+function reset(){
+  mousedown=false;
+  playing = false;
+  time = 0;
+  pointtouched=-1;
+  currentlevelhover = -1;
+  touchcount=0;
+  pointtouch=false;
+  pointthresh = 7.5;
   for (var i=0; i<touched.length; i++){
     touched[i] = false;
   }
+  done = false;
 }
 
 function draw() {
@@ -94,6 +103,7 @@ function draw() {
     //check if you touched enough
     if (touchcount >= poly.length){
       playing = false;
+      done = true;
     }
     
     time = millis() - starttime;
@@ -107,10 +117,14 @@ function draw() {
   }
   drawquads();
   if (pointtouched != -1){
-    fill(255,0,0,100);
-    noStroke();
+    stroke(0);
+    noFill();
+    ellipse(points[pointtouched].x,points[pointtouched].y,
+            pointthresh*3,pointthresh*3);
     ellipse(points[pointtouched].x,points[pointtouched].y,
             pointthresh*2,pointthresh*2);
+    ellipse(points[pointtouched].x,points[pointtouched].y,
+            pointthresh,pointthresh);
   }
   drawlevelselect();
   noStroke();
@@ -208,7 +222,11 @@ function mousePressed(){
       if (currentlevelhover < 0){
         if (!playing){
           if (pointtouch){
-            setup();
+            reset();
+            playing = true;
+            starttime = millis();
+          }else if (done){
+            reset();
           }else{
             playing = true;
             starttime = millis();
@@ -216,7 +234,7 @@ function mousePressed(){
         }
       }else{
         file = currentlevelhover;
-        setup();
+        reset();
       }
     }
     mousedown = true;
@@ -231,13 +249,14 @@ function mouseReleased(){
 }
 
 function keyPressed(){
-  if (key == 'r'){
-    setup();
+  print("pressed key "+key);
+  if (key == 'r' || key == 'R'){
+    reset();
   }
   for (var i=0; i<numfiles; i++){
     if (key == str(i).charAt(0)){
       file = i;
-      setup();
+      reset();
     }
   }
 }
