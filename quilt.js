@@ -29,7 +29,10 @@ var starttime;
 var time;
 
 function preload(){
-  //readtxt();
+  lines = new Array();
+  touched = new Array();
+  poly = new Array();
+  readtxt();
 }
 
 function setup(){
@@ -57,8 +60,7 @@ function setup(){
   }
   textAlign(CENTER,CENTER);
   
-  poly = parsetxt();
-  touched = new Array(poly.length);//boolean[poly.length];
+  //poly = parsetxt();
   
   reset();
 }

@@ -1,9 +1,12 @@
 var lines;
 
 function readtxt(){
-  lines = loadStrings('pattern'+str(file)+'.txt');
-  print("there are " + lines.length + " lines");
-  parsetxt();
+  print("reading");
+  jQuery.get('pattern'+str(file)+'.txt', function(data) {
+    lines = data.split("\n");
+    print(lines);
+    poly = parsetxt();
+  });
 }
 
 function parsetxt(){
@@ -16,5 +19,7 @@ function parsetxt(){
       polyfill[i][j] = parseInt(l[j]);
     }
   }
+  touched = new Array(polyfill.length);
+  print("ye");
   return polyfill;
 }
