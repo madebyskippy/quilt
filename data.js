@@ -2,6 +2,7 @@ var lines;
 
 function readtxt(){
   print("reading");
+  print(file);
   jQuery.get('pattern'+str(file)+'.txt', function(data) {
     lines = data.split("\n");
     print(lines);

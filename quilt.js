@@ -1,5 +1,4 @@
 /*
--doesn't load other levels
 */
 
 var r=20; var c=20;
@@ -78,6 +77,7 @@ function reset(){
     touched[i] = false;
   }
   done = false;
+  readtxt();
 }
 
 function draw() {

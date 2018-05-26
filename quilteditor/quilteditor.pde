@@ -7,6 +7,8 @@ IntList currentpoly = new IntList();
 
 PVector selected;
 
+int saveindex;
+
 void setup(){
   selected = new PVector(0,0);
   background(255);
@@ -18,6 +20,13 @@ void setup(){
       stable[index] = new PVector(i*25+100,j*25+100);
     }
   }
+  
+  saveindex = 0;
+  
+  PFont font;
+  font = loadFont("Monospaced-48.vlw");
+  textFont(font, 13);
+  textAlign(CENTER,TOP);
 }
 
 void draw() {
@@ -25,6 +34,7 @@ void draw() {
   noFill();
   drawquads();
   drawpoints();
+  text("Z to start a new poly and then add points\nC to end it // X to end it and start anew\narrows to move points\nq to save the level",width/2,20);
 }
 
 void drawpoints(){
@@ -62,7 +72,8 @@ void savetext(){
   for (int i=0; i<poly.size(); i++){
     polies[i] = join(nf(poly.get(i),0),",");
   }
-  saveStrings("pattern.txt" , polies);
+  saveStrings("pattern"+str(saveindex)+".txt" , polies);
+  save("pattern"+str(saveindex)+".png");
   // Writes the strings to a file, each on a separate line
   //saveStrings("nouns.txt", list);
 }
@@ -86,6 +97,7 @@ void keyPressed(){
     }
   }else{
     if (key == 'x'){
+      //finish poly and start new one
       if (currentpoly.size()>2){
         poly.add(currentpoly.array());
       }
@@ -93,14 +105,17 @@ void keyPressed(){
       int index = (int)selected.x*r+(int)selected.y;
       currentpoly.append(index);
     }else if  (key == 'c'){
+      //finish poly
       if (currentpoly.size()>2){
         poly.add(currentpoly.array());
       }
       currentpoly.clear();
     }else if (key == 'z'){
+      //start poly
       int index = (int)selected.x*r+(int)selected.y;
       currentpoly.append(index);
     }else if (key == 'q'){
+      //finish level
       savetext();
     }
   }
