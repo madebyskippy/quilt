@@ -19,7 +19,7 @@ var playing;
 var currentlevelhover = -1;
 
 var file = 0;
-var numfiles = 7;
+var numfiles = 9;
 
 var starttime;
 var time;
