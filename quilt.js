@@ -1,6 +1,3 @@
-/*
-*/
-
 var r=20; var c=20;
 var gridsize = 25;
 var offsetx,offsety;
@@ -22,7 +19,7 @@ var playing;
 var currentlevelhover = -1;
 
 var file = 0;
-var numfiles = 3;
+var numfiles = 7;
 
 var starttime;
 var time;
@@ -142,6 +139,7 @@ function drawpoints(){
     for (var j=0; j<c; j++){
       var index = i*r+j;
       ellipse(points[index].x,points[index].y,radius,radius);
+      ellipse(points[index].x,points[index].y,pointthresh,pointthresh);
     }
   }
 }

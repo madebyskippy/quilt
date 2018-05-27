@@ -34,6 +34,16 @@ void draw() {
   noFill();
   drawquads();
   drawpoints();
+  //draw current poly
+  
+  stroke(0);
+  beginShape();
+  for (int i=0; i<currentpoly.size(); i++){
+    vertex(points[currentpoly.get(i)].x,points[currentpoly.get(i)].y);
+    ellipse(points[currentpoly.get(i)].x,points[currentpoly.get(i)].y,5,5);
+  }
+  endShape(CLOSE);
+  
   text("Z to start a new poly and then add points\nC to end it // X to end it and start anew\narrows to move points\nq to save the level",width/2,20);
 }
 
