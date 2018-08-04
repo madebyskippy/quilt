@@ -1,3 +1,5 @@
+//local high score (like alphabet game) -- need to test OK IT DOESN'T WORK
+
 var r=20; var c=20;
 var gridsize = 25;
 var offsetx,offsety;
@@ -23,8 +25,16 @@ var numfiles = 9;
 
 var starttime;
 var time;
+var scores;
 
 function preload(){
+  scores = new Array(0,0,0,0,0,0,0,0,0);
+  for (var i=0; i<numfiles; i++){
+    if (localStorage.getItem(str(i)) != null){
+      scores[i] = localStorage.getItem(str(i));
+    }
+  }
+  print(scores);
   lines = new Array();
   touched = new Array();
   poly = new Array();
@@ -69,7 +79,7 @@ function reset(){
   currentlevelhover = -1;
   touchcount=0;
   pointtouch=false;
-  pointthresh = 7.5;
+  pointthresh = 5;
   for (var i=0; i<touched.length; i++){
     touched[i] = false;
   }
@@ -101,6 +111,8 @@ function draw() {
     }
     //check if you touched enough
     if (touchcount >= poly.length){
+      scores[file] = round(time/1000);
+      localStorage.setItem(str(file),str(scores[file]));
       playing = false;
       done = true;
     }
@@ -111,7 +123,13 @@ function draw() {
     background(235);
     noStroke();
     fill(0);
-    text("touch all spaces\navoid all intersections\nclick to start",width/2,gridsize*2.5);
+    var textY = windowHeight/2-c/2*gridsize-gridsize*1/2;
+    textAlign(CENTER,BOTTOM);
+    if (done){
+      text("good work\n\nyou got it in "+str(round(time/1000))+" seconds",width/2,textY);
+    }else{
+      text("-click to start-\n\n\ntouch all spaces\navoid all intersections",width/2,textY);
+    }
     jiggle();
   }
   drawquads();
@@ -128,7 +146,8 @@ function draw() {
   drawlevelselect();
   noStroke();
   fill(0);
-  text(str(round(time/1000)),width/2,height-gridsize*3);
+  textAlign(CENTER,TOP);
+  text(str(round(time/1000)),width/2,windowHeight/2+r/2*gridsize+gridsize/2);
 }
 
 function drawpoints(){
@@ -148,7 +167,10 @@ function drawquads(){
   stroke(0);
   fill(225);
   for (var i=0; i<poly.length; i++){
-    if (touched[i]){
+    if (done){
+      stroke(255);
+      fill(0);
+    }else if(touched[i]){
       fill(150);
     }else{
       fill(250);
@@ -162,27 +184,42 @@ function drawquads(){
 }
 
 function drawlevelselect(){
+  textAlign(CENTER,CENTER);
   noFill();
   var h = 30;
   var r = 40;
   var total = width*0.8;
   var part = total / numfiles;
   var x = 0.1*width;
+  var yoffset = 5;
   currentlevelhover = -1;
   for (var i=0; i<numfiles; i++){
     noFill();
     stroke(0);
-    if (mouseY<height){
-      var dist = sqrt(pow(mouseX-(x+part/2),2)+pow(mouseY-(height-r/4),2));
-      if (dist < r/2){
+    
+    if (mouseY<height && mouseY>(height-r-yoffset)){
+      if (mouseX > (x+part/2-r/2) && mouseX < (x+part/2+r/2-1)){
         currentlevelhover=i;
         fill(200);
       }
     }
-    arc(x+part/2,height-r/4,r,r,0,4*PI);
+    if (i == file){
+      fill(170);
+    }
+    
+    arc(x+part/2,height-r/2-yoffset,r,r,PI,0);
+    //rect(x+part/2-r/2,height-r,r,r/2);
+    noStroke();
+    rect(x+part/2-r/2,height-r/2-yoffset,r,r);
+    stroke(0);
+    line(x+part/2-r/2,height-r/2-yoffset,x+part/2-r/2,height);
+    line(x+part/2+r/2-1,height-r/2-yoffset,x+part/2+r/2-1,height);
     fill(0);
     noStroke();
-    text(str(i+1),x+part/2,height-15);
+    text(str(i+1),x+part/2,height-35);
+    textSize(13);
+    text(str(scores[i])+"s",x+part/2,height-15);
+    textSize(16);
     x += part;
   }
 }
@@ -253,9 +290,9 @@ function keyPressed(){
   if (key == 'r' || key == 'R'){
     reset();
   }
-  for (var i=0; i<numfiles; i++){
+  for (var i=1; i<=numfiles; i++){
     if (key == str(i).charAt(0)){
-      file = i;
+      file = i-1;
       reset();
     }
   }
