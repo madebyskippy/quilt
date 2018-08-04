@@ -1,5 +1,3 @@
-//local high score (like alphabet game) -- need to test OK IT DOESN'T WORK
-
 var r=20; var c=20;
 var gridsize = 25;
 var offsetx,offsety;
@@ -31,7 +29,7 @@ function preload(){
   scores = new Array(0,0,0,0,0,0,0,0,0);
   for (var i=0; i<numfiles; i++){
     if (localStorage.getItem(str(i)) != null){
-      scores[i] = localStorage.getItem(str(i));
+      scores[i] = parseInt(localStorage.getItem(str(i)));
     }
   }
   print(scores);
@@ -111,8 +109,10 @@ function draw() {
     }
     //check if you touched enough
     if (touchcount >= poly.length){
-      scores[file] = round(time/1000);
-      localStorage.setItem(str(file),str(scores[file]));
+      if (scores[file] > round(time/1000) || scores[file] == 0){
+        scores[file] = round(time/1000);
+        localStorage.setItem(str(file),str(scores[file]));
+      }
       playing = false;
       done = true;
     }
@@ -254,7 +254,7 @@ function collision(p, m){
 function mousePressed(){
   //mouse just got pressed
   if (mouseButton == LEFT){
-    print("clicked");
+    // print("clicked");
     if (!mousedown){
       if (currentlevelhover < 0){
         if (!playing){
@@ -279,14 +279,14 @@ function mousePressed(){
 }
 function mouseReleased(){
   //mouse just got released
-    print("release");
+    // print("release");
   if (mouseButton == LEFT){
     mousedown = false;
   }
 }
 
 function keyPressed(){
-  print("pressed key "+key);
+  // print("pressed key "+key);
   if (key == 'r' || key == 'R'){
     reset();
   }
